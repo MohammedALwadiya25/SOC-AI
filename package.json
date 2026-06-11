@@ -1,0 +1,44 @@
+{
+  "name": "unified-soc-mcp",
+  "version": "1.0.0",
+  "description": "Production-style Unified SOC MCP Server and AI SOC Agent for Wazuh-centered security investigations.",
+  "main": "dist/index.js",
+  "bin": {
+    "unified-soc-mcp": "./dist/index.js",
+    "soc-agent": "./dist/agent/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.js",
+    "dev:server": "tsx src/index.ts",
+    "agent": "node dist/agent/cli.js",
+    "dev:agent": "tsx src/agent/cli.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "mcp",
+    "soc",
+    "wazuh",
+    "zeek",
+    "suricata",
+    "mitre"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "dotenv": "^17.4.2",
+    "pino": "^10.3.1",
+    "undici": "^6.24.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8"
+  }
+}
