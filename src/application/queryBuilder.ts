@@ -183,11 +183,11 @@ export const ZEEK_SOURCE_FIELDS = [
 ] as const;
 
 export const ZEEK_IP_FIELDS = [
-  "data.id.orig_h",
   "data.srcip",
+  "data.id.orig_h",
   "source.ip",
-  "data.id.resp_h",
   "data.dstip",
+  "data.id.resp_h",
   "destination.ip",
 ] as const;
 
