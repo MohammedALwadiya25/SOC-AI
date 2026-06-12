@@ -107,7 +107,7 @@ export function normalizeZeekEvent(id: string, source: Record<string, unknown>):
     service: asString(getPath(source, ["data", "service"])),
     query: asString(getPath(source, ["data", "query"])),
     answer: answers?.join(","),
-    action: asString(getPath(source, ["data", "conn_state"])),
+    action: asString(getPath(source, ["data", "connection_state"])),
     durationMs: secondsToMs(asNumber(getPath(source, ["data", "duration"]))),
     bytesIn: asNumber(getPath(source, ["data", "orig_bytes"])),
     bytesOut: asNumber(getPath(source, ["data", "resp_bytes"])),

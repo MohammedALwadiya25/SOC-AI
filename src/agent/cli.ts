@@ -36,7 +36,7 @@ async function dispatch(agent: SocAgent, command: string | undefined, args: stri
   if (command === "report-ip" && args[0]) {
     return agent.summarizeIncident({ entityIp: args[0] });
   }
-  if (command === "block" || command === "restart" || command === "modify") {
+  if (command === "block" || command === "restart" || command === "modify" || command === "delete") {
     return agent.refuseDestructiveRequest([command, ...args].join(" "));
   }
   return {

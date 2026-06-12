@@ -65,7 +65,21 @@ export class ZeekService {
     if (input.filters?.answer) {
       filters.push({ field: "data.answers", value: input.filters.answer, operator: "match" });
     }
-
+    
+    if (input.logType) {
+      const logTypeToLocation: Record<string, string> = {
+        conn: "/opt/zeek/logs/current/conn.log",
+        dns: "/opt/zeek/logs/current/dns.log",
+        http: "/opt/zeek/logs/current/http.log",
+        ssl: "/opt/zeek/logs/current/ssl.log",
+        files: "/opt/zeek/logs/current/files.log",
+        notice: "/opt/zeek/logs/current/notice.log",
+      };
+     const location = logTypeToLocation[input.logType];
+     if (location) {
+       filters.push({ field: "location", value: location, operator: "term" });
+     }
+   }
     const response = await this.indexer.search({
       index: this.context.config.zeekIndex,
       body: buildSearchBody({
