@@ -48,13 +48,13 @@ export class ZeekService {
       filters.push({ field: "rule.groups", value: input.logType, operator: "match" });
     }
     if (input.filters?.sourceIp) {
-      filters.push({ field: "data.id.orig_h", value: input.filters.sourceIp, operator: "term" });
+      filters.push({ field: "data.srcip", value: input.filters.sourceIp, operator: "term" });
     }
     if (input.filters?.destinationIp) {
-      filters.push({ field: "data.id.resp_h", value: input.filters.destinationIp, operator: "term" });
+      filters.push({ field: "data.dstip", value: input.filters.destinationIp, operator: "term" });
     }
     if (input.filters?.protocol) {
-      filters.push({ field: "data.proto", value: input.filters.protocol, operator: "term" });
+      filters.push({ field: "data.protocol", value: input.filters.protocol, operator: "term" });
     }
     if (input.filters?.service) {
       filters.push({ field: "data.service", value: input.filters.service, operator: "term" });
