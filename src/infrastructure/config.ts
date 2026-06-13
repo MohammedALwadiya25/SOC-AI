@@ -44,7 +44,7 @@ const configSchema = z.object({
   wazuhIndexerUsername: z.string().optional(),
   wazuhIndexerPassword: z.string().optional(),
   alertIndex: z.string().min(1).default("wazuh-alerts-*"),
-  zeekIndex: z.string().min(1).default("wazuh-archives-*"),
+  zeekIndex: z.string().min(1).default("wazuh-archives-4.x-*"),
   suricataIndex: z.string().min(1).default("wazuh-alerts-*"),
   tlsRejectUnauthorized: boolSchema.default(true),
   httpTimeoutMs: intSchema(10_000, 500, 120_000),

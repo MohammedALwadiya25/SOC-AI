@@ -95,25 +95,57 @@ export function normalizeZeekEvent(id: string, source: Record<string, unknown>):
   const logType = inferZeekLogType(source);
   const answers = asStringArray(firstDefined(getPath(source, ["data", "answers"]), getPath(source, ["data", "zeek", "answers"])));
 
+  // Wazuh archive index flattens Zeek fields with different names than native Zeek JSON
   return {
     id,
     timestamp,
     logType,
-    sourceIp: asString(firstDefined(getPath(source, ["data", "id.orig_h"]), getPath(source, ["data", "srcip"]))),
-    sourcePort: asNumber(firstDefined(getPath(source, ["data", "id.orig_p"]), getPath(source, ["data", "src_port"]))),
-    destinationIp: asString(firstDefined(getPath(source, ["data", "id.resp_h"]), getPath(source, ["data", "dstip"]))),
-    destinationPort: asNumber(firstDefined(getPath(source, ["data", "id.resp_p"]), getPath(source, ["data", "dst_port"]))),
-    protocol: asString(firstDefined(getPath(source, ["data", "proto"]), getPath(source, ["network", "protocol"]))),
-    service: asString(getPath(source, ["data", "service"])),
+    sourceIp: asString(firstDefined(
+      getPath(source, ["data", "srcip"]),           // Wazuh archive format
+      getPath(source, ["data", "id.orig_h"])        // Native Zeek format
+    )),
+    sourcePort: asNumber(firstDefined(
+      getPath(source, ["data", "srcport"]),          // Wazuh archive format
+      getPath(source, ["data", "id.orig_p"]),        // Native Zeek format
+      getPath(source, ["data", "src_port"])
+    )),
+    destinationIp: asString(firstDefined(
+      getPath(source, ["data", "dstip"]),            // Wazuh archive format
+      getPath(source, ["data", "id.resp_h"])         // Native Zeek format
+    )),
+    destinationPort: asNumber(firstDefined(
+      getPath(source, ["data", "dstport"]),          // Wazuh archive format
+      getPath(source, ["data", "id.resp_p"]),        // Native Zeek format
+      getPath(source, ["data", "dst_port"])
+    )),
+    protocol: asString(firstDefined(
+      getPath(source, ["data", "protocol"]),         // Wazuh archive format
+      getPath(source, ["data", "proto"]),            // Native Zeek format
+      getPath(source, ["network", "protocol"])
+    )),
+    service: asString(firstDefined(
+      getPath(source, ["data", "application_layer_protocol"]),  // Wazuh archive format
+      getPath(source, ["data", "service"])            // Native Zeek format
+    )),
     query: asString(getPath(source, ["data", "query"])),
     answer: answers?.join(","),
     action: asString(getPath(source, ["data", "connection_state"])),
-    durationMs: secondsToMs(asNumber(getPath(source, ["data", "duration"]))),
-    bytesIn: asNumber(getPath(source, ["data", "orig_bytes"])),
-    bytesOut: asNumber(getPath(source, ["data", "resp_bytes"])),
+    durationMs: secondsToMs(asNumber(firstDefined(
+      getPath(source, ["data", "duration_of_the_connection"]),  // Wazuh archive format
+      getPath(source, ["data", "duration"])           // Native Zeek format
+    ))),
+    bytesIn: asNumber(firstDefined(
+      getPath(source, ["data", "byte_send_by_originator"]),     // Wazuh archive format
+      getPath(source, ["data", "orig_bytes"])         // Native Zeek format
+    )),
+    bytesOut: asNumber(firstDefined(
+      getPath(source, ["data", "byte_sent_by_responder"]),      // Wazuh archive format
+      getPath(source, ["data", "resp_bytes"])         // Native Zeek format
+    )),
     normalizedFields: pickDefined({
       uid: asString(getPath(source, ["data", "uid"])),
       decoder: asString(getPath(source, ["decoder", "name"])),
+      location: asString(source.location),
     }),
   };
 }
@@ -212,7 +244,8 @@ function inferAlertSource(source: Record<string, unknown>): NormalizedAlert["sou
 function inferZeekLogType(source: Record<string, unknown>): ZeekEvent["logType"] {
   const groups = asStringArray(getPath(source, ["rule", "groups"]))?.join(" ").toLowerCase() ?? "";
   const decoder = asString(getPath(source, ["decoder", "name"]))?.toLowerCase() ?? "";
-  const raw = `${groups} ${decoder}`;
+  const location = asString(source.location)?.toLowerCase() ?? "";
+  const raw = `${groups} ${decoder} ${location}`;
   if (raw.includes("dns")) {
     return "dns";
   }

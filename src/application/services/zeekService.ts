@@ -40,19 +40,28 @@ export class ZeekService {
   ) {}
 
   public async searchLogs(input: ZeekSearchInput): Promise<{ events: ZeekEvent[]; total: number }> {
-    const filters: FilterClause[] = [
-      { field: "rule.groups", value: "zeek", operator: "match" },
-    ];
+    const filters: FilterClause[] = [];
+
+    // Archive data has no rule.groups - filter by Zeek log location instead
+    const logTypeToLocation: Record<string, string> = {
+      conn: "/opt/zeek/logs/current/conn.log",
+      dns: "/opt/zeek/logs/current/dns.log",
+      http: "/opt/zeek/logs/current/http.log",
+      ssl: "/opt/zeek/logs/current/ssl.log",
+      files: "/opt/zeek/logs/current/files.log",
+      notice: "/opt/zeek/logs/current/notice.log",
+    };
 
     if (input.logType) {
-      filters.push({ field: "rule.groups", value: input.logType, operator: "match" });
+      const location = logTypeToLocation[input.logType];
+      if (location) {
+        filters.push({ field: "location", value: location, operator: "term" });
+      }
+    } else {
+      // If no specific logType, match any Zeek log location
+      filters.push({ field: "location", value: "/opt/zeek/logs/current/", operator: "match" });
     }
-    if (input.filters?.sourceIp) {
-      filters.push({ field: "data.srcip", value: input.filters.sourceIp, operator: "term" });
-    }
-    if (input.filters?.destinationIp) {
-      filters.push({ field: "data.dstip", value: input.filters.destinationIp, operator: "term" });
-    }
+
     if (input.filters?.protocol) {
       filters.push({ field: "data.protocol", value: input.filters.protocol, operator: "term" });
     }
@@ -65,27 +74,18 @@ export class ZeekService {
     if (input.filters?.answer) {
       filters.push({ field: "data.answers", value: input.filters.answer, operator: "match" });
     }
-    
-    if (input.logType) {
-      const logTypeToLocation: Record<string, string> = {
-        conn: "/opt/zeek/logs/current/conn.log",
-        dns: "/opt/zeek/logs/current/dns.log",
-        http: "/opt/zeek/logs/current/http.log",
-        ssl: "/opt/zeek/logs/current/ssl.log",
-        files: "/opt/zeek/logs/current/files.log",
-        notice: "/opt/zeek/logs/current/notice.log",
-      };
-     const location = logTypeToLocation[input.logType];
-     if (location) {
-       filters.push({ field: "location", value: location, operator: "term" });
-     }
-   }
+
+    // Determine IP to search - support both source and destination
+    const searchIp = input.filters?.sourceIp ?? input.filters?.destinationIp;
+
     const response = await this.indexer.search({
       index: this.context.config.zeekIndex,
       body: buildSearchBody({
         timeRange: input.timeRange ?? defaultTimeRange(this.context.config.defaultTimeRangeHours),
         limit: effectiveLimit(input.limit, this.context),
         filters,
+        ip: searchIp,
+        ipFields: [...ZEEK_IP_FIELDS],
         sourceFields: [...ZEEK_SOURCE_FIELDS],
       }),
     });

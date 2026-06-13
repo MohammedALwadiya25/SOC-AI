@@ -27,7 +27,7 @@ export class CorrelationService {
 
     const [alertResult, zeekResult, suricataResult] = await Promise.all([
       captureSource("wazuh", () => this.alerts.searchAlerts({ ip: input.ip, timeRange, limit })),
-      captureSource("zeek", () => this.zeek.searchLogs({ filters: { sourceIp: input.ip }, timeRange, limit })),
+      captureSource("zeek", () => this.zeek.searchLogs({ filters: { sourceIp: input.ip, destinationIp: input.ip }, timeRange, limit })),
       captureSource("suricata", () => this.suricata.getAlerts({ filters: { sourceIp: input.ip }, timeRange, limit })),
     ]);
 
