@@ -47,12 +47,7 @@ export class ZeekService {
     if (input.logType) {
       filters.push({ field: "rule.groups", value: input.logType, operator: "match" });
     }
-    if (input.filters?.sourceIp) {
-      filters.push({ field: "data.srcip", value: input.filters.sourceIp, operator: "term" });
-    }
-    if (input.filters?.destinationIp) {
-      filters.push({ field: "data.dstip", value: input.filters.destinationIp, operator: "term" });
-    }
+   
     if (input.filters?.protocol) {
       filters.push({ field: "data.protocol", value: input.filters.protocol, operator: "term" });
     }
@@ -87,6 +82,8 @@ export class ZeekService {
         limit: effectiveLimit(input.limit, this.context),
         filters,
         sourceFields: [...ZEEK_SOURCE_FIELDS],
+        ip: input.filters?.sourceIp ?? input.filters?.destinationIp,
+        ipFields: [...ZEEK_IP_FIELDS],
       }),
     });
 
