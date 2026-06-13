@@ -5,7 +5,7 @@ type Clause = Record<string, unknown>;
 export interface FilterClause {
   field: string;
   value: string | number | boolean;
-  operator?: "term" | "match" | "range_gte";
+  operator?: "term" | "match" | "range_gte" | "wildcard";
 }
 
 export interface SearchBuildInput {
@@ -50,6 +50,14 @@ export function buildSearchBody(input: SearchBuildInput): Record<string, unknown
     if (filterClause.operator === "match") {
       must.push({
         match: {
+          [filterClause.field]: filterClause.value,
+        },
+      });
+      continue;
+    }
+   if (filterClause.operator === "wildcard") {
+      must.push({
+        wildcard: {
           [filterClause.field]: filterClause.value,
         },
       });

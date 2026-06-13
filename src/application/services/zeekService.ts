@@ -41,7 +41,7 @@ export class ZeekService {
 
   public async searchLogs(input: ZeekSearchInput): Promise<{ events: ZeekEvent[]; total: number }> {
     const filters: FilterClause[] = [
-      { field: "rule.groups", value: "zeek", operator: "match" },
+      { field: "location", value: "*zeek*", operator: "wildcard" },
     ];
 
     if (input.logType) {
