@@ -173,30 +173,32 @@ export const ALERT_IP_FIELDS = [
 export const ZEEK_SOURCE_FIELDS = [
   "@timestamp",
   "timestamp",
-  "data.zeek",
+  "location",
   "data.uid",
   "data.srcip",
-  "data.src_port",
+  "data.srcport",
   "data.dstip",
-  "data.dst_port",
+  "data.dstport",
   "data.protocol",
+  "data.application_layer_protocol",
   "data.service",
   "data.query",
   "data.answers",
+  "data.duration_of_the_connection",
   "data.duration",
+  "data.byte_send_by_originator",
   "data.orig_bytes",
+  "data.byte_sent_by_responder",
   "data.resp_bytes",
+  "data.connection_state",
+  "data.local_origin",
+  "data.local_response",
   "decoder.name",
-  "rule.groups",
 ] as const;
 
 export const ZEEK_IP_FIELDS = [
   "data.srcip",
-  "data.id.orig_h",
-  "source.ip",
   "data.dstip",
-  "data.id.resp_h",
-  "destination.ip",
 ] as const;
 
 export const SURICATA_SOURCE_FIELDS = [
